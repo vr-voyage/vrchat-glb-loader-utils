@@ -1,0 +1,14 @@
+{
+  "name": "io.github.vr-voyage.vrchat-glb-loader.utilities.Editor",
+  "references": [
+    "io.github.vr-voyage.vrchat-glb-loader.utilities"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "autoReferenced": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "defineConstraints": [],
+  "optionalUnityReferences": []
+}
