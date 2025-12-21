@@ -42,3 +42,4 @@ jobs:
         with:
           files: "${{ env.REPO_NAME }}-${{ env.TAG_NAME }}.zip"
           generate_release_notes: true
+          token: "${{ secrets.MY_TOKEN }}"
