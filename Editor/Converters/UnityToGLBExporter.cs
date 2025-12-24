@@ -616,11 +616,9 @@ namespace VoyageVoyage
 
             string mimetype;
             Dictionary<string, object> extension = new Dictionary<string, object>();
-            Debug.Log($"Texture : {texture.name} {texture.width} x {texture.height} - {texture.format} / {texture.graphicsFormat} (SRGB : {texture.isDataSRGB}");
             
             if (texture.format == TextureFormat.RGBAFloat)
             {
-                Debug.Log("As RGBAFloat");
                 pngData = texture.GetRawTextureData();
                 mimetype = "image/raw";
 
@@ -635,7 +633,6 @@ namespace VoyageVoyage
             }
             else if ((texture.width * texture.height) < (64*64) && texture.format == TextureFormat.ARGB32)
             {
-                Debug.Log("As ARGB32");
                 pngData = texture.GetRawTextureData();
                 mimetype = "image/raw";
 
@@ -649,7 +646,6 @@ namespace VoyageVoyage
             }
             else
             {
-                Debug.Log("As DXT5Crunched");
                 Texture2D compressedTexture = new Texture2D(texture.width, texture.height);
                 compressedTexture.SetPixels(texture.GetPixels());
                 compressedTexture.Apply();
