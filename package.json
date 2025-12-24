@@ -1,12 +1,12 @@
 {
   "name": "io.github.vr-voyage.vrchat-glb-loader.utilities",
   "displayName": "Voyage 3D Model Loader Utilities",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities provided to convert Meshes to GLB file compatible with the VRChat Gimmick \"Voyage 3D Model Loader\"",
   "gitDependencies": {},
   "vpmDependencies": {
-    "io.github.vr-voyage.vrchat-glb-loader.shaders": ">=1.0.0",
-    "com.vrmc.univrm": ">=0.128.0"
+    "io.github.vr-voyage.vrchat.glb-loader.shaders": ">=1.0.0",
+    "com.vrmc.vrm": ">=0.131.0"
   },
   "author": {
     "name": "Voyage Voyage",
@@ -14,5 +14,6 @@
     "url": "https://github.com/vr-voyage"
   },
   "legacyFolders": {},
-  "legacyFiles": {}
+  "legacyFiles": {},
+  "unity": "2022.3"
 }

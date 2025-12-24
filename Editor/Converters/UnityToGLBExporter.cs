@@ -616,8 +616,40 @@ namespace VoyageVoyage
 
             string mimetype;
             Dictionary<string, object> extension = new Dictionary<string, object>();
-            if (texture.format != TextureFormat.RGBAFloat)
+            Debug.Log($"Texture : {texture.name} {texture.width} x {texture.height} - {texture.format} / {texture.graphicsFormat} (SRGB : {texture.isDataSRGB}");
+            
+            if (texture.format == TextureFormat.RGBAFloat)
             {
+                Debug.Log("As RGBAFloat");
+                pngData = texture.GetRawTextureData();
+                mimetype = "image/raw";
+
+                extension["EXT_voyage_exporter"] = new Dictionary<string, object>()
+                {
+                    ["width"] = texture.width,
+                    ["height"] = texture.height,
+                    ["format"] = "RGBAFloat",
+                    ["linear"] = !texture.isDataSRGB
+                };
+
+            }
+            else if ((texture.width * texture.height) < (64*64) && texture.format == TextureFormat.ARGB32)
+            {
+                Debug.Log("As ARGB32");
+                pngData = texture.GetRawTextureData();
+                mimetype = "image/raw";
+
+                extension["EXT_voyage_exporter"] = new Dictionary<string, object>()
+                {
+                    ["width"] = texture.width,
+                    ["height"] = texture.height,
+                    ["format"] = "ARGB8",
+                    ["linear"] = !texture.isDataSRGB
+                };
+            }
+            else
+            {
+                Debug.Log("As DXT5Crunched");
                 Texture2D compressedTexture = new Texture2D(texture.width, texture.height);
                 compressedTexture.SetPixels(texture.GetPixels());
                 compressedTexture.Apply();
@@ -636,17 +668,7 @@ namespace VoyageVoyage
                     ["width"] = compressedTexture.width,
                     ["height"] = compressedTexture.height,
                     ["format"] = "DXT5Crunched",
-                };
-            }
-            else
-            {
-                pngData = texture.GetRawTextureData();
-                mimetype = "image/raw";
-                extension["EXT_voyage_exporter"] = new Dictionary<string, object>()
-                {
-                    ["width"] = texture.width,
-                    ["height"] = texture.height,
-                    ["format"] = "RGBAFloat",
+                    ["linear"] = !texture.isDataSRGB
                 };
             }
 
