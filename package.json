@@ -1,5 +1,5 @@
 {
-  "name": "io.github.vr-voyage.vrchat-glb-loader.utilities",
+  "name": "io.github.vr-voyage.vrchat.glb-loader.utilities",
   "displayName": "Voyage 3D Model Loader Utilities",
   "version": "1.0.1",
   "description": "Utilities provided to convert Meshes to GLB file compatible with the VRChat Gimmick \"Voyage 3D Model Loader\"",
