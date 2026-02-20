@@ -282,18 +282,18 @@ namespace VoyageVoyage
             mesh.GetUVs(0, uv0);
             mesh.GetUVs(1, uv1);
 
-            Vector3 invertOnX = new Vector3(-1, 1, 1);
+            Vector3 invertOnZ = new Vector3(1, 1, -1);
 
             for (int v = 0; v < nVertices; v++)
             {
 
 
                 Vector3 vertex = vertices[v];
-                vertex.Scale(invertOnX);
+                vertex.Scale(invertOnZ);
                 vertices[v] = vertex;
 
                 Vector3 normal = normals[v];
-                normal.Scale(invertOnX);
+                normal.Scale(invertOnZ);
                 normals[v] = normal;
 
             }
@@ -321,14 +321,13 @@ namespace VoyageVoyage
                 int nTrianglesIndices = subMeshTriangles.Length;
                 for (int a = 0; a < nTrianglesIndices; a += 3)
                 {
-                    int b = a + 1;
                     int c = a + 2;
 
-                    int pointB = subMeshTriangles[a + 1];
-                    int pointC = subMeshTriangles[a + 2];
+                    int pointA = subMeshTriangles[a];
+                    int pointC = subMeshTriangles[c];
 
-                    subMeshTriangles[c] = pointB;
-                    subMeshTriangles[b] = pointC;
+                    subMeshTriangles[c] = pointA;
+                    subMeshTriangles[a] = pointC;
                 }
 
                 int indicesBufferViewIndex = AddIndicesDataToBuffer(binaryData, bufferViews, subMeshTriangles);

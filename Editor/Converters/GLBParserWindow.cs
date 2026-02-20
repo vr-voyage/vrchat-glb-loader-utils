@@ -9,25 +9,25 @@ namespace VoyageVoyage
         private MeshRenderer targetMeshRenderer;
         private string outputPath = "";
 
-        [MenuItem("Tools/GLB Mesh Appender")]
+        [MenuItem("Tools/Export Mesh to GLB")]
         public static void ShowWindow()
         {
-            GetWindow<GLBMeshAppenderWindow>("GLB Mesh Appender");
+            GetWindow<GLBMeshAppenderWindow>("Export Mesh to GLB");
         }
 
         private void OnGUI()
         {
-            GUILayout.Label("GLB Mesh Appender", EditorStyles.boldLabel);
+            GUILayout.Label("Mesh to GLB Exporter", EditorStyles.boldLabel);
             GUILayout.Space(10);
 
             // Target MeshRenderer
-            GUILayout.Label("MeshRenderer to Append:");
+            GUILayout.Label("MeshRenderer to Export");
             targetMeshRenderer = (MeshRenderer)EditorGUILayout.ObjectField(targetMeshRenderer, typeof(MeshRenderer), true);
 
             GUILayout.Space(10);
 
             // Output path
-            GUILayout.Label("Output GLB File:");
+            GUILayout.Label("Output filepath");
             EditorGUILayout.BeginHorizontal();
             outputPath = EditorGUILayout.TextField(outputPath);
             if (GUILayout.Button("Browse", GUILayout.Width(60)))
@@ -41,7 +41,7 @@ namespace VoyageVoyage
             GUILayout.Space(20);
 
             GUI.enabled = targetMeshRenderer != null && !string.IsNullOrEmpty(outputPath);
-            if (GUILayout.Button("Append Mesh to GLB", GUILayout.Height(30)))
+            if (GUILayout.Button("Export Mesh to GLB", GUILayout.Height(30)))
             {
                 UnityToGLBExporter.ExportMeshRendererToGLB(targetMeshRenderer, outputPath);
             }
