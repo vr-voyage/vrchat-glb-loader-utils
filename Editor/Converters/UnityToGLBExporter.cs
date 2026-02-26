@@ -2,12 +2,84 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Rendering;
+
+using MaterialProps = System.Collections.Generic.Dictionary<string, UnityEditor.MaterialProperty>;
 
 namespace VoyageVoyage
 {
+
+    public static class PropertyHelpers
+    {
+        public static Color Clamp01(this Color value)
+        {
+            return new Color(Mathf.Clamp01(value.r), Mathf.Clamp01(value.g), Mathf.Clamp01(value.b), Mathf.Clamp01(value.a));
+        }
+
+        
+        public static MaterialProps GetPropertiesAsDictionary(this Material mat)
+        {
+            var props = MaterialEditor.GetMaterialProperties(new Material[] { mat });
+            var dict = UnityEngine.Pool.DictionaryPool<string, MaterialProperty>.Get();
+            int nProps = props.Length;
+            for (int propIndex = 0; propIndex < nProps; propIndex++)
+            {
+                var prop = props[propIndex];
+                dict[prop.name] = prop;
+            }
+            return dict;
+        }
+
+        public static void SetProperty(this Material mat, string propertyName, MaterialProperty property)
+        {
+            switch (property.type)
+            {
+                case MaterialProperty.PropType.Color:
+                    mat.SetColor(propertyName, property.colorValue);
+                    break;
+                case MaterialProperty.PropType.Vector:
+                    mat.SetVector(propertyName, property.vectorValue);
+                    break;
+                case MaterialProperty.PropType.Float:
+                case MaterialProperty.PropType.Range:
+                    mat.SetFloat(propertyName, property.floatValue);
+                    break;
+                case MaterialProperty.PropType.Texture:
+                    mat.SetTexture(propertyName, property.textureValue);
+                    break;
+                case MaterialProperty.PropType.Int:
+                    mat.SetInt(propertyName, property.intValue);
+                    break;
+                default:
+                    Debug.LogWarning($"Unknown property type {property.type}");
+                    break;
+            }
+        }
+
+        public static void SetProperty(this Material mat, MaterialProperty property)
+        {
+            mat.SetProperty(property.name, property);
+        }
+
+
+
+        public static void SetFollowingProperties(this Material mat, MaterialProps props, params string[] names)
+        {
+            foreach (var name in names)
+            {
+                if (props.TryGetValue(name, out var prop))
+                {
+                    mat.SetProperty(prop);
+                }
+            }
+        }
+    };
+
     /**
        Utility class for exporting a single MeshRenderer as a GLB object
        compatible with my VRChat 3D Model Loader.
@@ -75,13 +147,13 @@ namespace VoyageVoyage
 
         static GltfToShaderProperty[] standardProperties =
         {
-        new("_BumpMap", ShaderVarType.Texture, "normalTexture"),
-        new("_EmissionMap", ShaderVarType.Texture, "emissiveTexture"),
-        new("_EmissionColor", ShaderVarType.Color, "emissiveFactor"),
-        new("_AlphaMode", ShaderVarType.FloatEnum, "alphaMode", new string[] { "OPAQUE", "MASK", "BLEND" }),
-        new("_Cutoff", ShaderVarType.Int, "alphaCutOff"),
-        new("_DoubleSided", ShaderVarType.Bool, "doubleSided")
-    };
+            new("_BumpMap", ShaderVarType.Texture, "normalTexture"),
+            new("_EmissionMap", ShaderVarType.Texture, "emissiveTexture"),
+            new("_EmissionColor", ShaderVarType.Color, "emissiveFactor"),
+            new("_AlphaMode", ShaderVarType.FloatEnum, "alphaMode", new string[] { "OPAQUE", "MASK", "BLEND" }),
+            new("_Cutoff", ShaderVarType.Int, "alphaCutOff"),
+            new("_DoubleSided", ShaderVarType.Bool, "doubleSided")
+        };
 
         static GltfToShaderProperty[] standardPbrProperties =
         {
@@ -290,9 +362,9 @@ namespace VoyageVoyage
             {
 
 
-                Vector3 vertex = vertices[v];
-                vertex.Scale(invertOnZ);
-                vertices[v] = vertex;
+                Vector3 verTex = vertices[v];
+                verTex.Scale(invertOnZ);
+                vertices[v] = verTex;
 
                 Vector3 normal = normals[v];
                 normal.Scale(invertOnZ);
@@ -317,7 +389,7 @@ namespace VoyageVoyage
             List<object> allPrimitives = new List<object>(subMeshCount);
             for (int subMeshI = 0; subMeshI < subMeshCount; subMeshI++)
             {
-                int baseVertex = mesh.GetSubMesh(subMeshI).baseVertex;
+                int baseVerTex = mesh.GetSubMesh(subMeshI).baseVertex;
 
                 int[] subMeshTriangles = mesh.GetTriangles(subMeshI);
                 int nTrianglesIndices = subMeshTriangles.Length;
@@ -452,9 +524,9 @@ namespace VoyageVoyage
 
             for (int i = from; i < to; i++)
             {
-                Vector3 vertex = vertices[i];
-                min = Vector3.Min(min, vertex);
-                max = Vector3.Max(max, vertex);
+                Vector3 verTex = vertices[i];
+                min = Vector3.Min(min, verTex);
+                max = Vector3.Max(max, verTex);
             }
 
             return new Dictionary<string, object>
@@ -473,7 +545,6 @@ namespace VoyageVoyage
         {
             return material.shader.name.Contains("MToon10");
         }
-
 
         static void StoreShaderProperties(GltfToShaderProperty[] properties, Material material, Dictionary<string, object> gltfMaterialInfo, GltfContext context)
         {
@@ -518,6 +589,7 @@ namespace VoyageVoyage
                             int nameIndex = (int)material.GetFloat(shaderProperty);
                             if (nameIndex < 0 || nameIndex >= acceptableValues.Length) { continue; }
 
+                            Debug.Log($"Setting {gltfName} to {acceptableValues[nameIndex]} since {shaderProperty} == {nameIndex}");
                             gltfMaterialInfo[gltfName] = acceptableValues[nameIndex];
                         }
                         break;
@@ -605,6 +677,8 @@ namespace VoyageVoyage
                     unityMaterial,
                     context);
             }
+
+            
 
             int materialIndex = materials.Count;
             materials.Add(gltfMaterial);
